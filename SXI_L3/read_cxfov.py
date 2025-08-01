@@ -133,8 +133,8 @@ class read_cxfov():
         #Add figure title with key meta information. 
         time_title = f'{self.mapL3.date_obs}'
         exp_title = f'Expos: {self.mapL3.expos}s'
-        pos_title = 'SMILE: ({:.2f},{:.2f},{:.2f})'.format(*self.mapL3.smile_loc) 
-        aim_title = 'AIM: ({:.2f},{:.2f},{:.2f})'.format(*self.mapL3.target_loc) 
+        pos_title = 'SMILE: ({:.2f},{:.2f},{:.2f})'.format(*self.mapL3.pos) 
+        aim_title = 'AIM: ({:.2f},{:.2f},{:.2f})'.format(*self.mapL3.aim) 
         metatitle = time_title+'\n'+exp_title+'\n'+pos_title+'\n'+aim_title 
         
         fig.text(0.15, 0.95, metatitle, ha='left', va='top') 
@@ -152,12 +152,12 @@ class read_cxfov():
         self.hdu.header
         
         #Add primary header info here.  
-        self.hdu.header['POS_X'] = self.mapL3.smile_loc[0]
-        self.hdu.header['POS_Y'] = self.mapL3.smile_loc[1]
-        self.hdu.header['POS_Z'] = self.mapL3.smile_loc[2]
-        self.hdu.header['AIM_X'] = self.mapL3.target_loc[0]
-        self.hdu.header['AIM_Y'] = self.mapL3.target_loc[1]
-        self.hdu.header['AIM_Z'] = self.mapL3.target_loc[2]
+        self.hdu.header['POS_X'] = self.mapL3.pos[0]
+        self.hdu.header['POS_Y'] = self.mapL3.pos[1]
+        self.hdu.header['POS_Z'] = self.mapL3.pos[2]
+        self.hdu.header['AIM_X'] = self.mapL3.aim[0]
+        self.hdu.header['AIM_Y'] = self.mapL3.aim[1]
+        self.hdu.header['AIM_Z'] = self.mapL3.aim[2]
         
         #Add the other extensions. Start with CTSMAP and adapt its header.  
         self.hdu1 = fits.ImageHDU(data=self.data['CTSMAP'], name='CTSMAP')

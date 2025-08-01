@@ -70,10 +70,10 @@ class read_mapL3():
         '''This will extract the spacecraft position, aim point and time.''' 
         
         #Smile location 
-        self.smile_loc = np.array([self.primary_header['POS_X'], self.primary_header['POS_Y'], self.primary_header['POS_Z']]) 
+        self.pos = np.array([self.primary_header['POS_X'], self.primary_header['POS_Y'], self.primary_header['POS_Z']]) 
         
         #SXI Aim point 
-        self.target_loc = np.array([self.primary_header['AIM_X'], self.primary_header['AIM_Y'], self.primary_header['AIM_Z']])    
+        self.aim = np.array([self.primary_header['AIM_X'], self.primary_header['AIM_Y'], self.primary_header['AIM_Z']])    
         
         #Time  
         self.date_obs = self.ctsmap_header['DATE-OBS'] 
@@ -152,8 +152,8 @@ class read_mapL3():
         #Add figure title with key meta information. 
         time_title = f'{self.date_obs}'
         exp_title = f'Expos: {self.expos}s'
-        pos_title = 'SMILE: ({:.2f},{:.2f},{:.2f})'.format(*self.smile_loc) 
-        aim_title = 'AIM: ({:.2f},{:.2f},{:.2f})'.format(*self.target_loc) 
+        pos_title = 'SMILE: ({:.2f},{:.2f},{:.2f})'.format(*self.pos) 
+        aim_title = 'AIM: ({:.2f},{:.2f},{:.2f})'.format(*self.aim) 
         metatitle = time_title+'\n'+exp_title+'\n'+pos_title+'\n'+aim_title 
         
         fig.text(0.15, 0.95, metatitle, ha='left', va='top') 
