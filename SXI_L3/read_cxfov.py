@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 
 from . import paths 
 from . import read_mapL3 
+from . import rebin_funcs 
 
 from SXI_Core import make_image_axes
 from SXI_Core import read_cmap 
@@ -82,52 +83,14 @@ class read_cxfov():
         
         #Now start rebinning all the data products.  
         self.data = {}  
-        self.data['CTSMAP'] = self.rebin_sum(self.mapL3.data['CTSMAP'], self.new_shape) 
-        self.data['XBMAP'] = self.rebin_sum(self.mapL3.data['XBMAP'], self.new_shape) 
-        self.data['PSMAP'] = self.rebin_sum(self.mapL3.data['PSMAP'], self.new_shape) 
-        self.data['PBMAP'] = self.rebin_sum(self.mapL3.data['PBMAP'], self.new_shape) 
-        self.data['CLMAP'] = self.rebin_sum(self.mapL3.data['CLMAP'], self.new_shape) 
-        self.data['SPMAP'] = self.rebin_sum(self.mapL3.data['SPMAP'], self.new_shape) 
-        self.data['VIGMAP'] = self.rebin_mean(self.mapL3.data['VIGMAP'], self.new_shape) 
+        self.data['CTSMAP'] = rebin_funcs.rebin_sum(self.mapL3.data['CTSMAP'], self.new_shape) 
+        self.data['XBMAP'] = rebin_funcs.rebin_sum(self.mapL3.data['XBMAP'], self.new_shape) 
+        self.data['PSMAP'] = rebin_funcs.rebin_sum(self.mapL3.data['PSMAP'], self.new_shape) 
+        self.data['PBMAP'] = rebin_funcs.rebin_sum(self.mapL3.data['PBMAP'], self.new_shape) 
+        self.data['CLMAP'] = rebin_funcs.rebin_sum(self.mapL3.data['CLMAP'], self.new_shape) 
+        self.data['SPMAP'] = rebin_funcs.rebin_sum(self.mapL3.data['SPMAP'], self.new_shape) 
+        self.data['VIGMAP'] = rebin_funcs.rebin_mean(self.mapL3.data['VIGMAP'], self.new_shape) 
         
-        
-        
-    def rebin_mean(self, arr, new_shape):
-        '''This is a function I've got from
-        https://scipython.com/blog/binning-a-2d-array-in-numpy/
-        
-        Parameters
-        ----------
-        arr - The 2D array you wish to rebin. 
-        new_shape - The new shape you wish to rebin it too. 
-        
-        Returns
-        -------
-        reshaped array. 
-        '''
-        
-        shape = (new_shape[0], arr.shape[0] // new_shape[0],
-             new_shape[1], arr.shape[1] // new_shape[1])
-        return arr.reshape(shape).mean(-1).mean(1)    
-
-    def rebin_sum(self, arr, new_shape):
-        '''This is a function I've got from
-        https://scipython.com/blog/binning-a-2d-array-in-numpy/
-        This is adapted to find the sum instead of the mean. 
-        
-        Parameters
-        ----------
-        arr - The 2D array you wish to rebin. 
-        new_shape - The new shape you wish to rebin it too. 
-        
-        Returns
-        -------
-        reshaped array. 
-        '''
-        
-        shape = (new_shape[0], arr.shape[0] // new_shape[0],
-             new_shape[1], arr.shape[1] // new_shape[1])
-        return arr.reshape(shape).sum(-1).sum(1)   
                 
 
     #PLOTTING FUNCTIONS. 
