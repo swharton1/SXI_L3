@@ -7,9 +7,9 @@ import matplotlib.pyplot as plt
 from . import paths 
 from . import read_mapL3 
 from . import rebin_funcs 
+from . import read_cmap 
+from . import make_image_axes
 
-from SXI_Core import make_image_axes
-from SXI_Core import read_cmap 
 
 class read_cxfov():
     '''This class will read in the mapL3 file, rebin the data spatially to the desired size and calculate the CXFOV data.''' 

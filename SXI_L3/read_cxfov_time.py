@@ -11,9 +11,9 @@ import datetime as dt
 from . import paths 
 from . import read_mapL3 
 from . import rebin_funcs 
+from . import read_cmap 
+from . import make_image_axes
 
-from SXI_Core import make_image_axes
-from SXI_Core import read_cmap 
 
 class read_cxfov_time():
     '''This will read in a set number of files and combine them together.''' 
