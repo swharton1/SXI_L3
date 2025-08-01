@@ -135,7 +135,12 @@ class read_mapL3():
         #Get custom lundi colormap.
         if cmap == 'lundi':
             cmap = read_cmap.txt2matplotlib()   
-            
+        
+        #Use a scale from 0-1 for the vignetting map. Overwrite. 
+        if ext.upper() == 'VIGMAP': 
+            vmin = 0
+            vmax = 1 
+               
         #Create the figure. 
         fig = plt.figure(figsize=(4,6))
         fig.subplots_adjust(top=0.8, left=0.20, right=0.85)
