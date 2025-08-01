@@ -3,6 +3,7 @@
 import os 
 import numpy as np 
 import matplotlib.pyplot as plt 
+from astropy.io import fits 
 
 from . import paths 
 from . import read_mapL3 
@@ -137,3 +138,74 @@ class read_cxfov():
         metatitle = time_title+'\n'+exp_title+'\n'+pos_title+'\n'+aim_title 
         
         fig.text(0.15, 0.95, metatitle, ha='left', va='top') 
+        
+    def create_fits_file(self):
+        '''This will create a FITS file with similar extensions to that produced by the SXI simulator. It should be readable by my read_fits_image.py script.''' 
+        
+        #Create a filename. 
+        self.fitspath = paths.get_fits_path()
+        filename = f'cts_{self.folder[:-1]}_{self.folder[:-1]}_{self.xres}x{self.yres}.fits'
+        self.outname=self.fitspath+filename 
+        
+        #Create a new HDU object. 
+        self.hdu = fits.PrimaryHDU()
+        self.hdu.header
+        
+        #Add primary header info here.  
+        self.hdu.header['POS_X'] = self.mapL3.smile_loc[0]
+        self.hdu.header['POS_Y'] = self.mapL3.smile_loc[1]
+        self.hdu.header['POS_Z'] = self.mapL3.smile_loc[2]
+        self.hdu.header['AIM_X'] = self.mapL3.target_loc[0]
+        self.hdu.header['AIM_Y'] = self.mapL3.target_loc[1]
+        self.hdu.header['AIM_Z'] = self.mapL3.target_loc[2]
+        
+        #Add the other extensions. Start with CTSMAP and adapt its header.  
+        self.hdu1 = fits.ImageHDU(data=self.data['CTSMAP'], name='CTSMAP')
+        self.hdu1.header['CTYPE1'] = self.mapL3.x_unit
+        self.hdu1.header['CRVAL1'] = self.mapL3.xdeg_min 
+        self.hdu1.header['CDELT1'] = self.xres 
+        self.hdu1.header['CTYPE2'] = self.mapL3.y_unit
+        self.hdu1.header['CRVAL2'] = self.mapL3.ydeg_min 
+        self.hdu1.header['CDELT2'] = self.yres 
+        self.hdu1.header['EXPOS'] = self.mapL3.expos
+        self.hdu1.header['EMIN'] = self.mapL3.emin
+        self.hdu1.header['EMAX'] = self.mapL3.emax
+        self.hdu1.header['RA'] = self.mapL3.ra
+        self.hdu1.header['DEC'] = self.mapL3.dec 
+        self.hdu1.header['DATE-OBS'] = self.mapL3.date_obs
+        self.hdu1.header['DATE-END'] = self.mapL3.date_end 
+        header = self.hdu1.header 
+        
+        #Add the other extensions. 
+        self.hdu2 = fits.ImageHDU(data=self.data['XBMAP'], name='XBMAP', header=header) 
+        self.hdu3 = fits.ImageHDU(data=self.data['PSMAP'], name='PSMAP', header=header) 
+        self.hdu4 = fits.ImageHDU(data=self.data['PBMAP'], name='PBMAP', header=header) 
+        self.hdu5 = fits.ImageHDU(data=self.data['CLMAP'], name='CLMAP', header=header) 
+        self.hdu6 = fits.ImageHDU(data=self.data['SPMAP'], name='SPMAP', header=header) 
+        self.hdu7 = fits.ImageHDU(data=self.data['VIGMAP'], name='VIGMAP', header=header) 
+
+        #Add Original Comments. 
+        self.hdu1.header['COMMENT'] = 'Observed Total Counts Map' 
+        self.hdu2.header['COMMENT'] = 'Predicted diffuse X-ray Map' 
+        self.hdu3.header['COMMENT'] = 'Predicted Point Source Map' 
+        self.hdu4.header['COMMENT'] = 'Predicted Particle Background Map' 
+        self.hdu5.header['COMMENT'] = 'Predicted Calibration Source Map' 
+        self.hdu6.header['COMMENT'] = 'Predicted Soft Proton Map' 
+        self.hdu7.header['COMMENT'] = 'Predicted Relative Exposure Map' 
+        
+        #Add comment to primary file stating which files were used to create this one. 
+        self.hdu.header['COMMENT'] = f'Derived from {self.folder}'
+        self.hdu.header['COMMENT'] = 'Made by read_cxfov.py' 
+        #Make the HDU list.  
+        self.hdul = fits.HDUList([self.hdu, self.hdu1, self.hdu2, self.hdu3, self.hdu4, self.hdu5, self.hdu6, self.hdu7]) 
+        
+        
+        
+        #Write the fits file. 
+        self.hdul.writeto(self.outname, overwrite=True) 
+        print ('Created: {}'.format(self.outname))     
+                
+        
+        
+        
+              
