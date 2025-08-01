@@ -3,4 +3,5 @@
 import os 
 
 from . import paths
-from . import read_mapL3  
+from . import read_mapL3 
+from . import read_cxfov  

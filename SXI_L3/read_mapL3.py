@@ -10,19 +10,19 @@ from . import paths
 
 from SXI_Core import make_image_axes
 from SXI_Core import read_cmap 
-from dipole import dipole
+
 
 class read_mapL3():
     '''This class reads in the mapL3 files that Steve has created.'''
     
-    def __init__(self, folder='sim_0600/', filename='mapL3_0600.fits', calc_dipole=True):
+    def __init__(self, folder='sim_0600/', filename='mapL3_0600.fits'):
         '''This reads in the file and constructs the filename. 
         
         Parameters
         ----------
         folder - name of folder. Currently in format 'sim_HHMM' 
         filename - Currently in format 'mapL3_HHMM' 
-        calc_dipole - Boolean to calculate the dipole tilt angle in radians for CMEM. Def=True. 
+
         '''
         
         #Get path to the data. 
@@ -62,11 +62,7 @@ class read_mapL3():
         self.get_orbit_info() 
         self.get_camera_info() 
         
-        if calc_dipole:
-            self.get_dipole() 
-        
 
-        
             
     #FUNCTIONS TO EXTRACT KEY HEADER INFO FROM THE FILE, INCLUDING DIPOLE ANGLE.
     ########################################################################
@@ -128,13 +124,6 @@ class read_mapL3():
         
         #Exposure 
         self.expos = self.ctsmap_header['EXPOS']   
-
-    def get_dipole(self):
-        'This gets the dipole angle in degrees.''' 
-        
-        #If calculating it from the time. 
-        self.dipole = np.deg2rad(dipole.Dipole(self.dtime.year).tilt(self.dtime)) 
-
 
     
     #PLOTTING FUNCTIONS. 
