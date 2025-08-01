@@ -1,6 +1,12 @@
 # SXI_L3
 Code to read Steve's new L3 SXI Product and rebin it in time and spatially. 
 
+Author: S. J. Wharton 
+Date: 1st August 2025 
+
+You will need astropy in order to read the FITS files. Try: 
+pip install astropy 
+
 The code contains the following scripts in the SXI_L3 folder: 
 paths           Functions to hardcode certain paths to the data. 
 read_mapL3      Class to read in the original L3 SXI file. 
