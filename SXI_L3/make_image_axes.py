@@ -3,7 +3,7 @@
 import numpy as np 
 import matplotlib.pyplot as plt
 
-def make_image_axes(ax, data, xdeg_min, ydeg_min, n_pixels, m_pixels, cmap='hot', vmin=0, vmax=50, add_cbar=True, cbar_title='Counts/pixel'):
+def make_image_axes(ax, data, xdeg_min, ydeg_min, n_pixels, m_pixels, cmap='hot', vmin=0, vmax=50, add_cbar=True, cbar_title='Counts/pixel', xlabel=True, ylabel=True):
     '''This will take the data and axis and fill it in for you.
     
     Parameters
@@ -19,8 +19,11 @@ def make_image_axes(ax, data, xdeg_min, ydeg_min, n_pixels, m_pixels, cmap='hot'
     vmax - maximum value on colour scale. def = 50 
     add_cbar - boolean to add on a colour bar. 
     cbar_title - colourbar title. def = 'Counts/pixel'
-    '''
+    xlabel - boolean to add the xlabel
+    ylabel - boolean to add the ylabel 
     
+    '''
+
     #Get 1D pixel arrays for plotting. The edges of the pixels.  
     xarray = np.linspace(xdeg_min, -xdeg_min, m_pixels+1)
     yarray = np.linspace(ydeg_min, -ydeg_min, n_pixels+1)
@@ -55,8 +58,8 @@ def make_image_axes(ax, data, xdeg_min, ydeg_min, n_pixels, m_pixels, cmap='hot'
     ax.barh(yarray[0:-1], hist2/n2, height=ydeg_sep, align='edge', left=phi_fov/2, clip_on=False, edgecolor='lightgrey', facecolor='lightgrey')
     
     #Add labels. 
-    ax.set_xlabel('deg')
-    ax.set_ylabel('deg') 
+    if xlabel: ax.set_xlabel('deg')
+    if ylabel: ax.set_ylabel('deg') 
     ax.set_xlim(-phi_fov/2, phi_fov/2) 
     ax.set_ylim(-theta_fov/2, theta_fov/2)
     ax.set_aspect('equal')
