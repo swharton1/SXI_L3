@@ -18,6 +18,7 @@ class read_vcy_file():
         #Get path to the data. 
         self.filename = filename 
         self.datapath = paths.get_data_path()+folder 
+        self.fitspath = paths.get_fits_path()
         self.fullname = os.path.join(self.datapath, filename) 
         
         #Check the file exists. 
@@ -56,7 +57,7 @@ class read_vcy_file():
     #PLOTTING FUNCTIONS. 
     ###################
         
-    def plot_vcy_extension(self, ext = 'VIGMAP', cmap='lundi', vmin=0, vmax=1):
+    def plot_vcy_extension(self, ext = 'VIGMAP', cmap='lundi', vmin=0, vmax=1, save=True):
         '''This will plot one of the extensions for you.''' 
         
         #Get custom lundi colormap.
@@ -89,7 +90,10 @@ class read_vcy_file():
         #Set filename as the title. 
         fig.text(0.5, 0.95, self.filename, ha='center', fontsize=10) 
                
-        
+        if save: 
+            print ('Saving: ', self.fitspath+self.filename+'.png')
+            fig.savefig(self.fitspath+self.filename+'.png') 
+            
     #FUNCTIONS TO EXTRACT KEY HEADER INFO FROM THE FILE, INCLUDING DIPOLE ANGLE.
     ########################################################################
            

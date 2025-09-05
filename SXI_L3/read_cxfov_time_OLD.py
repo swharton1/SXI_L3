@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from astropy.io import fits 
 
 from . import paths 
-from . import read_mapL3 
+from . import read_mapL3_OLD 
 from . import rebin_funcs 
 from . import read_cmap 
 from . import make_image_axes
@@ -38,7 +38,7 @@ class read_cxfov_time():
         #Now read in all of the mapL3 files. 
         self.mapL3 = [] 
         for n in range(len(self.folders)):
-            self.mapL3.append(read_mapL3.read_mapL3(folder=self.folders[n], filename=self.filenames[n]))    
+            self.mapL3_OLD.append(read_mapL3.read_mapL3(folder=self.folders[n], filename=self.filenames[n]))    
 
         #Bin temporally. 
         self.rebin_temporally() 

@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from astropy.io import fits 
 
 from . import paths 
-from . import read_mapL3 
+from . import read_mapL3_OLD 
 from . import rebin_funcs 
 from . import read_cmap 
 from . import make_image_axes
@@ -31,7 +31,7 @@ class read_cxfov():
         self.folder = folder 
               
         #Read in the file using read_mapL3.py 
-        self.mapL3 = read_mapL3.read_mapL3(folder=folder, filename=filename)        
+        self.mapL3 = read_mapL3_OLD.read_mapL3(folder=folder, filename=filename)        
         
         #Get the binning resolution data and do basic checks. 
         self.xres = xres 
