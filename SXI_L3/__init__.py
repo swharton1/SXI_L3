@@ -11,3 +11,4 @@ from . import read_tot_file
 from . import read_vcy_file
 from . import rebin_files 
 from . import rebin_file_spatially 
+from . import read_rebinned_file

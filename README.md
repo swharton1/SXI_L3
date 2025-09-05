@@ -8,18 +8,25 @@ You will need astropy in order to read the FITS files. Try:
 pip install astropy 
 
 The code contains the following scripts in the SXI_L3 folder: 
-paths           Functions to hardcode certain paths to the data. 
-read_mapL3      Class to read in the original L3 SXI file. 
-read_cxfov      Class to read to rebin a single L3 SXI file spatially and produce a 
-                new fits file. 
-read_cxfov_time Class to read in a sequence of consecutive files and combine the data 
-                temporally. Then rebins spatially and produces a new fits file. 
-rebin_funcs     Functions to rebin data spatially. 
-read_cmap       Function to get the lundi colourmap. 
-make_image_axes Function to plot an extension onto an axes and add a colourbar. 
+paths.py                Functions to hardcode certain paths to the data. 
+rebin_funcs.py          Functions to rebin data spatially. 
+read_cmap.py            Function to get the lundi colourmap. 
+make_image_axes.py      Function to plot an extension onto an axes and add a colourbar. 
+read_bkg_file.py        Function to read in the background file. 
+read_tot_file.py        Function to read in the total counts file. 
+read_vcy_file.py        Function to read in the vignetting file. 
+rebin_file_spatially.py Function to read in the 3 file types and spatially rebin and calc CXFOV.
+rebin_files.py          Function to rebin a set of files both spatially and temporally. 
+read_rebinned_file.py   Function to read in the rebinned file. 
 
 TO RUN THE EXAMPLE SCRIPT IN THE UNIX TERMINAL, TYPE: 
 python3 examples.py 
+
+REDUNDANT FILES. 
+read_mapL3_OLD.py
+read_cxfov_OLD.py
+read_cxfov_time_OLD.py
+examples_OLD.py 
 
 
 INPUT/OUTPUT. 

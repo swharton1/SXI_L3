@@ -6,6 +6,7 @@ import glob
 import numpy as np 
 import matplotlib.pyplot as plt 
 from astropy.io import fits 
+import datetime as dt 
 
 from . import paths 
 from . import read_bkg_file
@@ -68,6 +69,13 @@ class rebin_files():
         self.date_end = self.rebin_files[-1].date_end 
         
         self.expos = self.rebin_files[0].expos*len(self.folders) 
+        
+        #Make datetime strings in SMILE formating convention. 
+        date_obs_obj = dt.datetime.strptime(self.date_obs, '%Y-%m-%dT%H:%M:%S.%f') 
+        date_end_obj = dt.datetime.strptime(self.date_end, '%Y-%m-%dT%H:%M:%S.%f') 
+        self.date_obs_str = dt.datetime.strftime(date_obs_obj, '%Y%m%dT%H%M') 
+        self.date_end_str = dt.datetime.strftime(date_end_obj, '%Y%m%dT%H%M') 
+        
         
     def get_folders_and_filenames(self):
         '''This will work out the names of all the folders and filenames. It depends on the format of your folders and filenames, so this could change. ''' 
@@ -160,7 +168,7 @@ class rebin_files():
         fig.text(0.5, 0.9, 'Integrated CXFOV', ha='center')
         
         if save: 
-            filename = f'cts_{self.folders[0][:-1]}_{self.folders[-1][:-1]}_{self.xres}x{self.yres}_CXFOV.png'
+            filename = f'SMILE_SXI_L3_SCIM15-SCI-CXF_{self.date_obs_str}-{self.date_end_str}_V01_{self.xres}x{self.yres}_CXFOV.png'
             print ('Saving: ', self.fitspath+filename)
             fig.savefig(self.fitspath+filename)
             
@@ -190,7 +198,7 @@ class rebin_files():
         ax3.set_title('CXFOV\n', fontsize=10) 
 
         if save: 
-            filename = f'cts_{self.folders[0][:-1]}_{self.folders[-1][:-1]}_{self.xres}x{self.yres}_key_ext.png'
+            filename = f'SMILE_SXI_L3_SCIM15-SCI-CXF_{self.date_obs_str}-{self.date_end_str}_V01_{self.xres}x{self.yres}_key_ext.png'
             print ('Saving: ', self.fitspath+filename)
             fig.savefig(self.fitspath+filename)
 
@@ -244,7 +252,7 @@ class rebin_files():
         ax9.set_title('CXFOV\n', fontsize=10)       
         
         if save: 
-            filename = f'cts_{self.folders[0][:-1]}_{self.folders[-1][:-1]}_{self.xres}x{self.yres}_all_ext.png'
+            filename = f'SMILE_SXI_L3_SCIM15-SCI-CXF_{self.date_obs_str}-{self.date_end_str}_V01_{self.xres}x{self.yres}_all_ext.png'
             print ('Saving: ', self.fitspath+filename)
             fig.savefig(self.fitspath+filename)
             
@@ -253,11 +261,11 @@ class rebin_files():
         '''This will create a FITS file with similar extensions to that produced by the SXI simulator. It should be readable by my read_fits_image.py script.''' 
         
         #Create a filename. 
-        filename = f'cts_{self.folders[0][:-1]}_{self.folders[-1][:-1]}_{self.xres}x{self.yres}.fits'
+        filename = f'SMILE_SXI_L3_SCIM15-SCI-CXF_{self.date_obs_str}-{self.date_end_str}_V01_{self.xres}x{self.yres}.fits'
         self.outname=self.fitspath+filename 
         
         #Create a new HDU object. 
-        self.hdu = fits.PrimaryHDU()
+        self.hdu = fits.PrimaryHDU(data=self.rebin_final['CXFOV'])
         self.hdu.header
         
         #Add primary header info here.  
@@ -315,7 +323,7 @@ class rebin_files():
         
         
         #Make the HDU list.  
-        self.hdul = fits.HDUList([self.hdu, self.hdu1, self.hdu2, self.hdu3, self.hdu4, self.hdu5, self.hdu6, self.hdu7, self.hdu8]) 
+        self.hdul = fits.HDUList([self.hdu, self.hdu1, self.hdu2, self.hdu3, self.hdu4, self.hdu5, self.hdu6, self.hdu7, self.hdu8, self.hdu9]) 
         
         
         #Write the fits file. 
