@@ -13,7 +13,7 @@ from . import make_image_axes
 class read_tot_file():
     '''This will read in the background file and all its extensions.''' 
     
-    def __init__(self, folder='sim_0600/', filename='SMILE_SXI_L3_SCIM15-SCI-TOT_20260317T1240-20260317T1241_V01.fits'):
+    def __init__(self, folder='L3_20260317T0240-20260317T0241/', filename='SMILE_SXI_L3_SCIM15-SCI-TOT_20260317T0240-20260317T0241_V01.fits'):
     
         #Get path to the data. 
         self.filename = filename 

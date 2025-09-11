@@ -17,7 +17,7 @@ from . import make_image_axes
 class rebin_file():
     '''This will take all three files and produce a single rebinned file.''' 
     
-    def __init__(self, folder='sim_0600/', bkg_file='SMILE_SXI_L3_SCIM15-SCI-BKG_20260317T1240-20260317T1241_V01.fits', tot_file='SMILE_SXI_L3_SCIM15-SCI-TOT_20260317T1240-20260317T1241_V01.fits', vcy_file='SMILE_SXI_L3_SCIM15-SCI-VCY_20260317T1240-20260317T1241_V01.fits', xres=1, yres=1):
+    def __init__(self, folder='L3_20260317T0240-20260317T0241/', bkg_file='SMILE_SXI_L3_SCIM15-SCI-BKG_20260317T0240-20260317T0241_V01.fits', tot_file='SMILE_SXI_L3_SCIM15-SCI-TOT_20260317T0240-20260317T0241_V01.fits', vcy_file='SMILE_SXI_L3_SCIM15-SCI-VCY_20260317T0240-20260317T0241_V01.fits', xres=1, yres=1):
     
         #Get path to the data. 
         self.folder = folder
@@ -47,8 +47,8 @@ class rebin_file():
         self.rebin_arrays() 
         
         #Now calculate CXFOV. 
-        print ('Calculating CXFOV...') 
-        self.rebin_data['CXFOV'] = (self.rebin_data['CTSMAP'] - self.rebin_data['BKGMAP'])/self.rebin_data['VIGMAP'] 
+        #print ('Calculating CXFOV...') 
+        #self.rebin_data['CXFOV'] = (self.rebin_data['CTSMAP'] - self.rebin_data['BKGMAP'])/self.rebin_data['VIGMAP'] 
         
         #Calculate rebinning factor. i.e. how many times larger the box is. 
         self.rebin_factor = (self.xres/self.bkg.xdeg_sep)*(self.yres/self.bkg.ydeg_sep)
@@ -126,27 +126,27 @@ class rebin_file():
             
         
         #Create the figure. 
-        fig = plt.figure(figsize=(8,8))
-        fig.subplots_adjust(top=0.85, wspace=0.5, hspace=0.4)
-        ax1 = fig.add_subplot(331)
-        ax2 = fig.add_subplot(332)
-        ax3 = fig.add_subplot(333)
-        ax4 = fig.add_subplot(334)
-        ax5 = fig.add_subplot(335)
-        ax6 = fig.add_subplot(336)
-        ax7 = fig.add_subplot(338)
+        fig = plt.figure(figsize=(8,6))
+        fig.subplots_adjust(top=0.80, wspace=0.5, hspace=0.4)
+        ax1 = fig.add_subplot(231)
+        ax2 = fig.add_subplot(232)
+        ax3 = fig.add_subplot(233)
+        ax4 = fig.add_subplot(234)
+        ax5 = fig.add_subplot(235)
+        ax6 = fig.add_subplot(236)
+        #ax7 = fig.add_subplot(338)
         
         #Make the axis. 
         make_image_axes.make_image_axes(ax1, self.tot.data['CTSMAP'], self.tot.xdeg_min, self.tot.ydeg_min, self.tot.n_pixels, self.tot.m_pixels, cmap=cmap, vmin=vmin, vmax=vmax/self.rebin_factor, cbar_title='CTSMAP [cts/pix]')
-        #ax1.set_title('CTSMAP'+'\n')
+        ax1.set_title('CTSMAP'+'\n')
         
         #Make the axis. 
         make_image_axes.make_image_axes(ax2, self.bkg.data['BKGMAP'], self.bkg.xdeg_min, self.bkg.ydeg_min, self.bkg.n_pixels, self.bkg.m_pixels, cmap=cmap, vmin=vmin, vmax=vmax/self.rebin_factor, cbar_title='BKGMAP [cts/pix]', ylabel=False)
-        #ax2.set_title('BKGMAP'+'\n')
+        ax2.set_title('BKGMAP'+'\n')
         
         #Make the axis. 
         make_image_axes.make_image_axes(ax3, self.vcy.data['VIGMAP'], self.vcy.xdeg_min, self.vcy.ydeg_min, self.vcy.n_pixels, self.vcy.m_pixels, cmap=cmap, vmin=0, vmax=1, cbar_title='VIGMAP', ylabel=False)
-        #ax3.set_title('VIGMAP'+'\n')  
+        ax3.set_title('VIGMAP'+'\n')  
         
         #Make the axis. 
         make_image_axes.make_image_axes(ax4, self.rebin_data['CTSMAP'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=vmin, vmax=vmax, cbar_title='CTSMAP [cts/pix]')
@@ -160,13 +160,12 @@ class rebin_file():
         make_image_axes.make_image_axes(ax6, self.rebin_data['VIGMAP'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=1, cbar_title='VIGMAP', ylabel=False)
         #ax6.set_title('VIGMAP'+'\n')  
         
-        #Make the axis. 
-        make_image_axes.make_image_axes(ax7, self.rebin_data['CXFOV'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='CXFOV [cts/pix]', ylabel=False)   
+
         
         #Add titles from the files. 
         fig.text(0.5, 0.97, f'{self.tot_file}\n{self.bkg_file}\n{self.vcy_file}', ha='center', fontsize=10, va='top')
             
         if save: 
-            filename = f'cts_{self.folder[:-1]}_{self.xres}x{self.yres}_rebin.png'
+            filename = f'SMILE_SXI_L3_SCIM15-SCI-ALL_{self.folder[:-1]}_{self.xres}x{self.yres}_rebin.png'
             print ('Saving: ', self.fitspath+filename)
             fig.savefig(self.fitspath+filename)  

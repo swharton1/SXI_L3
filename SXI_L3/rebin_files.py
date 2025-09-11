@@ -21,21 +21,21 @@ from . import rebin_file_spatially
 class rebin_files(): 
     '''This will read in a set number of files and combine them in space and time.''' 
     
-    def __init__(self, start_folder='sim_0600', end_folder='sim_0603', xres=1, yres=1):
+    def __init__(self, stime='20260317T0240', etime='20260317T0244', xres=1, yres=1):
         '''This takes in the start and end folders, gets the filenames and then combines data temporally before combining it spatially. 
         
         Parameters
         ----------
-        start_folder - First folder to include. 
-        end_folder - Last fodler to include. 
+        stime - start time in string format 'YYYYmmddTHHMM'
+        etime - end time in string format 'YYYYmmddTHHMM'  
         xres - x angular resolution to bin too. def = 1. Must be greater than that in the original file. 
         yres - y angular resolution to bin too. def = 1. Must be greater than that in the original file. 
         
         '''
         
         #Get lists of folders and filenames. 
-        self.start_folder = start_folder
-        self.end_folder = end_folder 
+        self.stime = stime
+        self.etime = etime 
         self.datapath = paths.get_data_path()
         self.fitspath = paths.get_fits_path()
         self.get_folders_and_filenames() 
@@ -51,6 +51,15 @@ class rebin_files():
         
         #Now combine files temporally. 
         self.rebin_temporally()
+        
+        #Now calculate CXFOV. 
+        print ('Calculating CXFOV...') 
+        self.rebin_final['CXFOV'] = (self.rebin_final['CTSMAP'] - self.rebin_final['BKGMAP'])/self.rebin_final['VIGMAP'] 
+        
+        #Calculate the error in the FOV. 
+        #FOR NOW, THIS JUST COMES FROM THE ERROR IN CTSMAP. 
+        print ('Estimating Error...') 
+        self.rebin_final['ERRFOV'] = np.sqrt(self.rebin_final['CTSMAP'])
         
         #Extract some key information. 
         self.aim = self.rebin_files[0].bkg.aim
@@ -76,30 +85,64 @@ class rebin_files():
         self.date_obs_str = dt.datetime.strftime(date_obs_obj, '%Y%m%dT%H%M') 
         self.date_end_str = dt.datetime.strftime(date_end_obj, '%Y%m%dT%H%M') 
         
-        
     def get_folders_and_filenames(self):
-        '''This will work out the names of all the folders and filenames. It depends on the format of your folders and filenames, so this could change. ''' 
+        '''This is the updated way of getting the folder names using the time.'''
         
-        print ('Get folder and filenames...') 
-        #Get start and end numbers. 
-        self.start_num = int(self.start_folder[-4:])
-        self.end_num = int(self.end_folder[-4:]) 
+        print ('Get folder names...') 
         
-        #Make list. 
-        self.folder_nums = np.arange(self.start_num, self.end_num+1)
-        self.folders = [f'sim_{n:0>4}/' for n in self.folder_nums]  
+        stime_dt = dt.datetime.strptime(self.stime, '%Y%m%dT%H%M')
+        etime_dt = dt.datetime.strptime(self.etime, '%Y%m%dT%H%M')  
+        minute = dt.timedelta(hours=1/60)
+        n = int((etime_dt-stime_dt).seconds/60)
         
-        #Prepare empty lists of filenames. 
+        #Create list of datetimes. 
+        self.times = [] 
+        for i in range(n+1):
+            self.times.append(stime_dt + i*minute)
+            
+        #Now loop through these to make folder names. 
+        self.folders = []
         self.bkg_files = []
         self.tot_files = []
-        self.vcy_files = []  
+        self.vcy_files = [] 
+        for i in range(n):
+            
+            start = dt.datetime.strftime(self.times[i], '%Y%m%dT%H%M')
+            end = dt.datetime.strftime(self.times[i+1], '%Y%m%dT%H%M')
+            
+            #Folder names. 
+            folder_name = f'L3_{start}-{end}/'
+            self.folders.append(folder_name)
+            
+            #Filenames. 
+            self.bkg_files.append(f'SMILE_SXI_L3_SCIM15-SCI-BKG_{start}-{end}_V01.fits') 
+            self.tot_files.append(f'SMILE_SXI_L3_SCIM15-SCI-TOT_{start}-{end}_V01.fits') 
+            self.vcy_files.append(f'SMILE_SXI_L3_SCIM15-SCI-VCY_{start}-{end}_V01.fits') 
+            
+           
+#    def get_folders_and_filenames(self):
+#        '''This will work out the names of all the folders and filenames. It depends on the format of your folders and filenames, so this could change. ''' 
+        
+#        print ('Get folder and filenames...') 
+#        #Get start and end numbers. 
+#        self.start_num = int(self.start_folder[-4:])
+#        self.end_num = int(self.end_folder[-4:]) 
+        
+        #Make list. 
+#        self.folder_nums = np.arange(self.start_num, self.end_num+1)
+#        self.folders = [f'sim_{n:0>4}/' for n in self.folder_nums]  
+        
+        #Prepare empty lists of filenames. 
+#        self.bkg_files = []
+#        self.tot_files = []
+#        self.vcy_files = []  
         
         #Go through each folder and pull out the name. 
-        for f in self.folders:
+#        for f in self.folders:
             
-            self.bkg_files.append(glob.glob1(self.datapath+f, '*-BKG_*')[0])
-            self.tot_files.append(glob.glob1(self.datapath+f, '*-TOT_*')[0])
-            self.vcy_files.append(glob.glob1(self.datapath+f, '*-VCY_*') [0])
+#            self.bkg_files.append(glob.glob1(self.datapath+f, '*-BKG_*')[0])
+#            self.tot_files.append(glob.glob1(self.datapath+f, '*-TOT_*')[0])
+#            self.vcy_files.append(glob.glob1(self.datapath+f, '*-VCY_*') [0])
 
 
     def rebin_temporally(self):
@@ -116,7 +159,6 @@ class rebin_files():
         self.rebin_final['PBMAP'] = np.zeros((self.rebin_files[0].rebin_data['PBMAP'].shape))
         self.rebin_final['CLMAP'] = np.zeros((self.rebin_files[0].rebin_data['CLMAP'].shape))
         self.rebin_final['SPMAP'] = np.zeros((self.rebin_files[0].rebin_data['SPMAP'].shape))
-        self.rebin_final['CXFOV'] = np.zeros((self.rebin_files[0].rebin_data['CXFOV'].shape))
         
         for n in range(len(self.rebin_files)):
             self.rebin_final['CTSMAP'] += self.rebin_files[n].rebin_data['CTSMAP']
@@ -126,15 +168,14 @@ class rebin_files():
             self.rebin_final['PBMAP'] += self.rebin_files[n].rebin_data['PBMAP']
             self.rebin_final['CLMAP'] += self.rebin_files[n].rebin_data['CLMAP']
             self.rebin_final['SPMAP'] += self.rebin_files[n].rebin_data['SPMAP']
-            self.rebin_final['CXFOV'] += self.rebin_files[n].rebin_data['CXFOV']
             
         
         #Get the vignetting map on the assumption it is the same for all files. 
         #Choose the first one. 
         self.rebin_final['VIGMAP'] = self.rebin_files[0].rebin_data['VIGMAP']         
 
-    def plot_cxfov_all(self, cmap='lundi', vmin=0, vmax=10, save=False):
-        '''This will make a plot showing how all the CXFOV files are added together to produce one with a single, larger exposure time.''' 
+    def plot_ctsmap_all(self, cmap='lundi', vmin=0, vmax=80, save=False):
+        '''This will make a plot showing how all the CTSMAP extensions are added together to produce one with a single, larger exposure time.''' 
 
         #Get custom lundi colormap.
         if cmap == 'lundi':
@@ -156,19 +197,19 @@ class rebin_files():
             ax = fig.add_subplot(1, n+1, i+1)
                 
             #Make the axis. 
-            make_image_axes.make_image_axes(ax, self.rebin_files[i].rebin_data['CXFOV'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='', ylabel=False, add_cbar=False)   
+            make_image_axes.make_image_axes(ax, self.rebin_files[i].rebin_data['CTSMAP'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='', ylabel=False, add_cbar=False)   
             
         
         axt = fig.add_subplot(1, n+1, n+1)
         
         #Make the axis. 
-        make_image_axes.make_image_axes(axt, self.rebin_final['CXFOV'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='Counts/pixel', ylabel=False, add_cbar=False)
+        make_image_axes.make_image_axes(axt, self.rebin_final['CTSMAP'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='Counts/pixel', ylabel=False, add_cbar=False)
         axt.set_title('Combined\n', fontsize=10) 
         
-        fig.text(0.5, 0.9, 'Integrated CXFOV', ha='center')
+        fig.text(0.5, 0.9, 'Integrated CTSMAP', ha='center')
         
         if save: 
-            filename = f'SMILE_SXI_L3_SCIM15-SCI-CXF_{self.date_obs_str}-{self.date_end_str}_V01_{self.xres}x{self.yres}_CXFOV.png'
+            filename = f'SMILE_SXI_L3_SCIM15-SCI-CTS_{self.date_obs_str}-{self.date_end_str}_V01_{self.xres}x{self.yres}_integrated.png'
             print ('Saving: ', self.fitspath+filename)
             fig.savefig(self.fitspath+filename)
             
@@ -210,18 +251,19 @@ class rebin_files():
             cmap = read_cmap.txt2matplotlib()   
   
           
-        fig = plt.figure(figsize=(7,8))
-        fig.subplots_adjust(left=0.1, wspace=0.4, hspace=0.5)
+        fig = plt.figure(figsize=(8,4))
+        fig.subplots_adjust(left=0.1, wspace=0.7, hspace=0.4)
         
-        ax1 = fig.add_subplot(331)
-        ax2 = fig.add_subplot(332)
-        ax3 = fig.add_subplot(333) 
-        ax4 = fig.add_subplot(334)
-        ax5 = fig.add_subplot(335)
-        ax6 = fig.add_subplot(336) 
-        ax7 = fig.add_subplot(337)
-        ax8 = fig.add_subplot(338)
-        ax9 = fig.add_subplot(339)
+        ax1 = fig.add_subplot(251)
+        ax2 = fig.add_subplot(252)
+        ax3 = fig.add_subplot(253) 
+        ax4 = fig.add_subplot(254)
+        ax5 = fig.add_subplot(255)
+        ax6 = fig.add_subplot(256) 
+        ax7 = fig.add_subplot(257)
+        ax8 = fig.add_subplot(258)
+        ax9 = fig.add_subplot(259)
+        ax10 = fig.add_subplot(2,5,10)
         
         #Make the axis. 
         make_image_axes.make_image_axes(ax1, self.rebin_final['CTSMAP'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='', ylabel=True, add_cbar=True, xlabel=False)
@@ -230,16 +272,16 @@ class rebin_files():
         make_image_axes.make_image_axes(ax2, self.rebin_final['BKGMAP'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='', ylabel=False, add_cbar=True, xlabel=False)
         ax2.set_title('BKGMAP\n', fontsize=10) 
         
-        make_image_axes.make_image_axes(ax3, self.rebin_final['XBMAP'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='Counts/pixel', ylabel=False, add_cbar=True, xlabel=False)
+        make_image_axes.make_image_axes(ax3, self.rebin_final['XBMAP'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='', ylabel=False, add_cbar=True, xlabel=False)
         ax3.set_title('XBMAP\n', fontsize=10) 
         
-        make_image_axes.make_image_axes(ax4, self.rebin_final['PSMAP'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='', ylabel=True, add_cbar=True, xlabel=False)
+        make_image_axes.make_image_axes(ax4, self.rebin_final['PSMAP'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='', ylabel=False, add_cbar=True, xlabel=False)
         ax4.set_title('PSMAP\n', fontsize=10) 
         
-        make_image_axes.make_image_axes(ax5, self.rebin_final['PBMAP'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='', ylabel=False, add_cbar=True, xlabel=False)
+        make_image_axes.make_image_axes(ax5, self.rebin_final['PBMAP'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='Counts/pixel', ylabel=False, add_cbar=True, xlabel=False)
         ax5.set_title('PBMAP\n', fontsize=10) 
         
-        make_image_axes.make_image_axes(ax6, self.rebin_final['CLMAP'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='Counts/pixel', ylabel=False, add_cbar=True, xlabel=False)
+        make_image_axes.make_image_axes(ax6, self.rebin_final['CLMAP'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='', ylabel=True, add_cbar=True, xlabel=True)
         ax6.set_title('CLMAP\n', fontsize=10) 
         
         make_image_axes.make_image_axes(ax7, self.rebin_final['SPMAP'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='', ylabel=False, add_cbar=True)
@@ -248,8 +290,11 @@ class rebin_files():
         make_image_axes.make_image_axes(ax8, self.rebin_final['VIGMAP'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=1, cbar_title='', ylabel=False, add_cbar=True)
         ax8.set_title('VIGMAP\n', fontsize=10) 
         
-        make_image_axes.make_image_axes(ax9, self.rebin_final['CXFOV'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='Counts/pixel', ylabel=False, add_cbar=True)
-        ax9.set_title('CXFOV\n', fontsize=10)       
+        make_image_axes.make_image_axes(ax9, self.rebin_final['ERRFOV'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='', ylabel=False, add_cbar=True)
+        ax9.set_title('ERRFOV\n', fontsize=10)       
+        
+        make_image_axes.make_image_axes(ax10, self.rebin_final['CXFOV'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='Counts/pixel', ylabel=False, add_cbar=True)
+        ax10.set_title('CXFOV\n', fontsize=10)    
         
         if save: 
             filename = f'SMILE_SXI_L3_SCIM15-SCI-CXF_{self.date_obs_str}-{self.date_end_str}_V01_{self.xres}x{self.yres}_all_ext.png'
@@ -309,6 +354,7 @@ class rebin_files():
         self.hdu7 = fits.ImageHDU(data=self.rebin_final['SPMAP'], name='SPMAP', header=header) 
         self.hdu8 = fits.ImageHDU(data=self.rebin_final['VIGMAP'], name='VIGMAP', header=header) 
         self.hdu9 = fits.ImageHDU(data=self.rebin_final['CXFOV'], name='CXFOV', header=header)
+        self.hdu10 = fits.ImageHDU(data=self.rebin_final['ERRFOV'], name='ERRFOV', header=header) 
         
         #Add Original Comments. 
         self.hdu1.header['COMMENT'] = 'Observed Total Counts Map' 
@@ -320,10 +366,10 @@ class rebin_files():
         self.hdu7.header['COMMENT'] = 'Predicted Soft Proton Map' 
         self.hdu8.header['COMMENT'] = 'Predicted Relative Exposure Map (Vignetting)' 
         self.hdu9.header['COMMENT'] = 'Foreground, Devignetted Count Map (CXFOV)'
-        
+        self.hdu10.header['COMMENT'] = 'Error in counts. Assumed square root of CTSMAP'
         
         #Make the HDU list.  
-        self.hdul = fits.HDUList([self.hdu, self.hdu1, self.hdu2, self.hdu3, self.hdu4, self.hdu5, self.hdu6, self.hdu7, self.hdu8, self.hdu9]) 
+        self.hdul = fits.HDUList([self.hdu, self.hdu1, self.hdu2, self.hdu3, self.hdu4, self.hdu5, self.hdu6, self.hdu7, self.hdu8, self.hdu9, self.hdu10]) 
         
         
         #Write the fits file. 

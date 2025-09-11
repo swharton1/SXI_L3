@@ -5,10 +5,10 @@ import os
 #    assert os.path.exists(path), f'{path} does not exist!' 
 #    return path 
     
-def get_data_path(path='/data/smile/shared/sims/GAC_OUTPUT/'):
+def get_data_path(path='/data/smile/shared/sims/GAC_V1/'):
     assert os.path.exists(path), f'{path} does not exist!'
     return path  
     
-def get_fits_path(path='/data/smile/shared/sims/GAC_OUTPUT/binned_examples/'):
+def get_fits_path(path=os.path.dirname(__file__)+'/binned_examples/'):
     assert os.path.exists(path), f'{path} does not exist!'
     return path  
