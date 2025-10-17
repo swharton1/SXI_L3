@@ -13,10 +13,9 @@ from . import read_bkg_file
 from . import read_tot_file
 from . import read_vcy_file  
 from . import rebin_funcs 
-from . import read_cmap 
-from . import make_image_axes
+from .SXI_Core import make_image_axes
 from . import rebin_file_spatially 
-
+from .SXI_Core import read_cmap 
 
 class rebin_files(): 
     '''This will read in a set number of files and combine them in space and time.''' 

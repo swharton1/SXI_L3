@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 import datetime as dt
 
 from . import paths 
-from . import read_cmap 
-from . import make_image_axes 
+from .SXI_Core import read_cmap 
+from .SXI_Core import make_image_axes 
 
 class read_rebinned_file():
     '''This reads in the new rebinned file.''' 

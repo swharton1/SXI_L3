@@ -11,8 +11,8 @@ from . import read_bkg_file
 from . import read_tot_file
 from . import read_vcy_file  
 from . import rebin_funcs 
-from . import read_cmap 
-from . import make_image_axes
+from .SXI_Core import read_cmap 
+from .SXI_Core import make_image_axes
 
 class rebin_file():
     '''This will take all three files and produce a single rebinned file.''' 
