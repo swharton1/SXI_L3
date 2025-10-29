@@ -20,7 +20,7 @@ from .SXI_Core import read_cmap
 class rebin_files(): 
     '''This will read in a set number of files and combine them in space and time.''' 
     
-    def __init__(self, stime='20260317T0240', etime='20260317T0244', xres=1, yres=1):
+    def __init__(self, stime='20260317T0240', etime='20260317T0244', xres=1, yres=1, fitspath=None):
         '''This takes in the start and end folders, gets the filenames and then combines data temporally before combining it spatially. 
         
         Parameters
@@ -28,7 +28,8 @@ class rebin_files():
         stime - start time in string format 'YYYYmmddTHHMM'
         etime - end time in string format 'YYYYmmddTHHMM'  
         xres - x angular resolution to bin too. def = 1. Must be greater than that in the original file. 
-        yres - y angular resolution to bin too. def = 1. Must be greater than that in the original file. 
+        yres - y angular resolution to bin too. def = 1. Must be greater than that in the original file.
+        fitspath - absolute path for the output file.  
         
         '''
         
@@ -36,7 +37,13 @@ class rebin_files():
         self.stime = stime
         self.etime = etime 
         self.datapath = paths.get_data_path()
-        self.fitspath = paths.get_fits_path()
+        
+        #Use default output location of no fitspath is given. 
+        if fitspath is None: 
+            self.fitspath = paths.get_fits_path()
+        else: 
+            self.fitspath = fitspath 
+            
         self.get_folders_and_filenames() 
         
         self.xres = xres

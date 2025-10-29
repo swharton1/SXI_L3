@@ -14,13 +14,29 @@ from .SXI_Core import make_image_axes
 class read_rebinned_file():
     '''This reads in the new rebinned file.''' 
     
-    def __init__(self, folder='binned_examples/', filename='SMILE_SXI_L3_SCIM15-SCI-CXF_20260317T0240-20260317T0244_V01_1x1.fits'):
-    
+    def __init__(self, folder='binned_examples/', filename='SMILE_SXI_L3_SCIM15-SCI-CXF_20260317T0240-20260317T0244_V01_1x1.fits', fitspath=None):
+        
+        '''This reads in a rebinned file.
+        
+        Parameters
+        ----------
+        folder - absolute path to the file. 
+        filename - filename. 
+        fitspath - absolute path to output files. None - uses default. 
+        
+        '''
+        
         #Get path to the data. 
         self.filename = filename 
         self.datapath = paths.get_fits_path()
-        self.fitspath = paths.get_fits_path()
         self.fullname = os.path.join(self.datapath, filename) 
+        
+        if fitspath is None: 
+            self.fitspath = paths.get_fits_path()
+        else:
+            self.fitspath = fitspath 
+            
+        
         
         #Check the file exists. 
         assert os.path.isfile(self.fullname), f'{self.fullname} does not exist' 

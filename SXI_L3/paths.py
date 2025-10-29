@@ -5,7 +5,7 @@ import os
 #    assert os.path.exists(path), f'{path} does not exist!' 
 #    return path 
     
-def get_data_path(path='/data/smile/shared/sims/GAC_V1/'):
+def get_data_path(path='/data/smile/shared/sims/GAC_V2/'):
     assert os.path.exists(path), f'{path} does not exist!'
     return path  
     
