@@ -18,7 +18,7 @@ yres = 1
 #The code assumes that the raw L3 files are stored in '/data/smile/shared/sims/GAC_V2/' 
 #You can change this in the file SXI_L3/paths.py. 
 
-#Put the full name of the output file location. 
+#Put the full name of the output file location. RECOMMEND CHANGING THIS! 
 fitspath = './' 
 
 #Run the rebinning code. 
