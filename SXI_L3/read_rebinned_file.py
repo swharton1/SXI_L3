@@ -28,7 +28,10 @@ class read_rebinned_file():
         
         #Get path to the data. 
         self.filename = filename 
-        self.datapath = paths.get_fits_path()
+        if folder is None: 
+            self.datapath = paths.get_fits_path()
+        else: 
+            self.datapath = folder 
         self.fullname = os.path.join(self.datapath, filename) 
         
         if fitspath is None: 
@@ -85,8 +88,14 @@ class read_rebinned_file():
         self.date_obs = self.primary_header['DATE-OBS'] 
         self.date_end = self.primary_header['DATE-END']
         
+        
         #Get datetime object for the start. 
-        self.dtime = dt.datetime.strptime(self.date_obs, '%Y-%m-%dT%H:%M:%S.%f') 
+        self.stime = dt.datetime.strptime(self.date_obs, '%Y-%m-%dT%H:%M:%S.%f') 
+        self.etime = dt.datetime.strptime(self.date_end, '%Y-%m-%dT%H:%M:%S.%f') 
+        
+        self.date_obs_str = dt.datetime.strftime(self.stime, '%Y%m%dT%H%M') 
+        self.date_end_str = dt.datetime.strftime(self.etime, '%Y%m%dT%H%M') 
+        
         
         #Get Energy Bands. 
         self.emin = self.primary_header['EMIN']
@@ -130,14 +139,18 @@ class read_rebinned_file():
         #Exposure 
         self.expos = self.primary_header['EXPOS']   
         
-    def plot_key_extensions(self, cmap='lundi', vmin=0, vmax=20, save=False):
+    def plot_key_extensions(self, cmap='lundi', vmin=0, vmax=20, save=False, close=False):
         '''This will plot the final most important extensions, CTSMAP, BKGMAP and CXFOV.'''
         
         #Get custom lundi colormap.
         if cmap == 'lundi':
             cmap = read_cmap.txt2matplotlib()   
   
-          
+        if close: 
+            plt.ioff() 
+        else: 
+            plt.ion() 
+              
         fig = plt.figure(figsize=(8,4))
         fig.subplots_adjust(left=0.1, wspace=0.5)
         
@@ -155,8 +168,13 @@ class read_rebinned_file():
         make_image_axes.make_image_axes(ax3, self.data['CXFOV'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='Counts/pixel', ylabel=False, add_cbar=True)
         ax3.set_title('CXFOV\n', fontsize=10) 
 
+        #Add times to the plot. 
+        fig.text(0.5, 0.95, f'{self.date_obs} - {self.date_end}', ha='center', fontsize=10)
+        fig.text(0.5, 0.90, f'SMILE = ({self.pos[0]:.2f},{self.pos[1]:.2f},{self.pos[2]:.2f}), Aim = ({self.aim[0]:.2f},{self.aim[1]:.2f},{self.aim[2]:.2f}), Exposure = {self.expos}s', ha='center', fontsize=10)
+        
+
         if save: 
-            filename = f'SMILE_SXI_L3_SCIM15-SCI-CXF_{self.date_obs_str}-{self.date_end_str}_V01_{self.xres}x{self.yres}_key_ext.png'
+            filename = f'SMILE_SXI_L3_SCIM15-SCI-CXF_{self.date_obs_str}-{self.date_end_str}_V01_{self.xdeg_sep}x{self.ydeg_sep}_key_ext.png'
             print ('Saving: ', self.fitspath+filename)
             fig.savefig(self.fitspath+filename)
 
