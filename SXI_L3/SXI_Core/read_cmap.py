@@ -15,7 +15,7 @@ def txt2matplotlib(cbpath=os.path.dirname(__file__), cbname='smile_colt_lundi.tx
     '''
     
     # Read the file and load it as a DataFrame
-    cb = pd.read_csv(cbpath + cbname, header=None, delim_whitespace=True)
+    cb = pd.read_csv(cbpath + '/' + cbname, header=None, delim_whitespace=True)
     
     # Create a new column by converting RGB values to tuples
     cb['color'] = cb.apply(lambda row: tuple(row[:3] / 255), axis=1)

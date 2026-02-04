@@ -139,7 +139,7 @@ class read_rebinned_file():
         #Exposure 
         self.expos = self.primary_header['EXPOS']   
         
-    def plot_key_extensions(self, cmap='lundi', vmin=0, vmax=20, save=False, close=False):
+    def plot_key_extensions(self, cmap='lundi', vmin=0, vmax=20, save=False, close=False, per_pixel=False):
         '''This will plot the final most important extensions, CTSMAP, BKGMAP and CXFOV.'''
         
         #Get custom lundi colormap.
@@ -158,14 +158,23 @@ class read_rebinned_file():
         ax2 = fig.add_subplot(132)
         ax3 = fig.add_subplot(133) 
         
+        #Scale by pixel size if necessary. 
+        if per_pixel:
+            px_size = self.xdeg_sep*self.ydeg_sep 
+            scale_size = px_size
+            cbar_title = r'Counts/deg$^2$'
+        else:
+            scale_size = 1
+            cbar_title = 'Counts/pixel'
+        
         #Make the axis. 
-        make_image_axes.make_image_axes(ax1, self.data['CTSMAP'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='', ylabel=True, add_cbar=True)
+        make_image_axes.make_image_axes(ax1, self.data['CTSMAP']/scale_size, self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='', ylabel=True, add_cbar=True)
         ax1.set_title('CTSMAP\n', fontsize=10) 
         
-        make_image_axes.make_image_axes(ax2, self.data['BKGMAP'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='', ylabel=False, add_cbar=True)
+        make_image_axes.make_image_axes(ax2, self.data['BKGMAP']/scale_size, self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='', ylabel=False, add_cbar=True)
         ax2.set_title('BKGMAP\n', fontsize=10) 
         
-        make_image_axes.make_image_axes(ax3, self.data['CXFOV'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='Counts/pixel', ylabel=False, add_cbar=True)
+        make_image_axes.make_image_axes(ax3, self.data['CXFOV']/scale_size, self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title=cbar_title, ylabel=False, add_cbar=True)
         ax3.set_title('CXFOV\n', fontsize=10) 
 
         #Add times to the plot. 
@@ -235,3 +244,4 @@ class read_rebinned_file():
             filename = f'SMILE_SXI_L3_SCIM15-SCI-CXF_{self.date_obs_str}-{self.date_end_str}_V01_{self.xres}x{self.yres}_all_ext.png'
             print ('Saving: ', self.fitspath+filename)
             fig.savefig(self.fitspath+filename)
+            
