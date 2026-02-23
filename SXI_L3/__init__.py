@@ -8,3 +8,4 @@ from . import rebin_files
 from . import rebin_file_spatially 
 from . import read_rebinned_file
 from . import SXI_Core
+from . import rebin_files_exp_bkg
