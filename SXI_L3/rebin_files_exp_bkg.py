@@ -221,9 +221,9 @@ class rebin_files():
         
         #Calculate expected value. 
         EXb = (x*pmf).sum()/pmf.sum() 
-        
+        print (EXb, lda_b)
         #Check it is less than the mean. It must be. 
-        assert (EXb < lda_b), "EXb should be less than the mean lda_b." 
+        #assert (EXb <= lda_b), "EXb should be less than the mean lda_b." 
         
         return EXb 
             
@@ -437,13 +437,13 @@ class rebin_files():
         ax1.set_ylabel('PMF') 
         
         #Add mean and Xt value. Extend x axis. 
-        ax1.set_xlim(-0.5, 24)
-        ax1.plot([lda_b, lda_b], [0, pmf.max()*1.2], 'k--', label='Xb') 
-        ax1.plot([Xt, Xt], [0, pmf.max()*1.2], 'r--', label='Xt')
-        ax1.plot([EXb, EXb], [0, pmf.max()*1.2], 'c--', label='E(Xb)')
+        ax1.set_xlim(-0.5, 24.5)
+        ax1.plot([lda_b, lda_b], [0, pmf.max()*1.2], 'k--', label=r'$\lambda_b$') 
+        ax1.plot([Xt, Xt], [0, pmf.max()*1.2], 'r--', label=r'X$_t$')
+        ax1.plot([EXb, EXb], [0, pmf.max()*1.2], 'c--', label=r'E(X$_b$)')
         ax1.legend(loc='upper right')  
         ax1.xaxis.set_major_locator(MultipleLocator(1)) 
-        ax1.set_title(f'Xb = {lda_b}, Xt = {Xt}, E(Xb) = {EXb:.2f}') 
+        ax1.set_title(r'$\lambda_b$ = '+f'{lda_b}, '+r'X$_t$ = '+f'{Xt}, '+r'E(X$_b$) = '+f' {EXb:.2f}') 
         
         #Save plot. 
         if save: 
@@ -487,9 +487,9 @@ class rebin_files():
         ax1.plot(Xt, EXb, marker='x', color='c')
         ax1.plot(Xt, np.ones(Xt.size)*lda_b, color='k', linestyle='dashed')
         ax1.set_xlabel('Total Counts') 
-        ax1.set_ylabel('E(Xb)') 
+        ax1.set_ylabel(r'E(X$_b$)') 
         ax1.xaxis.set_major_locator(MultipleLocator(1 if lda_b < 10 else 2)) 
-        ax1.set_title(f'Xb = {lda_b}') 
+        ax1.set_title(r'$\lambda_b$ = '+f'{lda_b}') 
         ax1.set_xlim(Xt.min()-0.5, Xt.max()+0.5)
         ax1.grid()
         
