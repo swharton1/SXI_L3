@@ -14,7 +14,7 @@ from .SXI_Core import make_image_axes
 class read_rebinned_file():
     '''This reads in the new rebinned file.''' 
     
-    def __init__(self, folder='binned_examples/', filename='SMILE_SXI_L3_SCIM15-SCI-CXF_20260317T0240-20260317T0244_V01_1x1.fits', fitspath=None):
+    def __init__(self, folder='/home/s/sw682/Code/SXI_L3/SXI_L3/binned_examples/', filename='SMILE_SXI_L3_SCIM15-SCI-CXFCON_20260317T0240-20260317T0244_V01_1x1.fits', fitspath=None):
         
         '''This reads in a rebinned file.
         
@@ -52,7 +52,12 @@ class read_rebinned_file():
             #Read out the entire file. Headers then data. 
             self.primary_header = self.hdul['PRIMARY'].header 
             
-            
+            #Works out if it has read a constrained file here. 
+            if 'CALC_CX' in self.primary_header:
+                self.calc_cxfov = self.primary_header['CALC_CX'] 
+            else:
+                self.calc_cxfov = 'normal' 
+                
             #Now data. 
             self.data = {} 
             self.data['CTSMAP'] = self.hdul['CTSMAP'].data
@@ -66,7 +71,10 @@ class read_rebinned_file():
             self.data['CXFOV'] = self.hdul['CXFOV'].data
             self.data['ERRFOV'] = self.hdul['ERRFOV'].data
             
-            
+            if self.calc_cxfov == 'constrained':
+                self.data['BKGCON'] = self.hdul['BKGCON'].data 
+                self.data['CXFOV_CON'] = self.hdul['CXFOV_CON'].data
+                
         #Further specific extractions of data. 
         self.get_orbit_info() 
         self.get_camera_info() 
@@ -171,24 +179,44 @@ class read_rebinned_file():
         make_image_axes.make_image_axes(ax1, self.data['CTSMAP']/scale_size, self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='', ylabel=True, add_cbar=True)
         ax1.set_title('CTSMAP\n', fontsize=10) 
         
-        make_image_axes.make_image_axes(ax2, self.data['BKGMAP']/scale_size, self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='', ylabel=False, add_cbar=True)
-        ax2.set_title('BKGMAP\n', fontsize=10) 
+        if self.calc_cxfov.lower() == 'normal':
         
-        make_image_axes.make_image_axes(ax3, self.data['CXFOV']/scale_size, self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title=cbar_title, ylabel=False, add_cbar=True)
-        ax3.set_title('CXFOV\n', fontsize=10) 
+            make_image_axes.make_image_axes(ax2, self.data['BKGMAP']/scale_size, self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='', ylabel=False, add_cbar=True)
+            ax2.set_title('BKGMAP\n', fontsize=10) 
+            
+            make_image_axes.make_image_axes(ax3, self.data['CXFOV']/scale_size, self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title=cbar_title, ylabel=False, add_cbar=True)
+            ax3.set_title('CXFOV\n', fontsize=10) 
 
+            filename = f'SMILE_SXI_L3_SCIM15-SCI-CXF_{self.date_obs_str}-{self.date_end_str}_V01_{self.xdeg_sep}x{self.ydeg_sep}_key_ext.png'
+            
+        elif self.calc_cxfov.lower() == 'constrained':
+        
+            make_image_axes.make_image_axes(ax2, self.data['BKGCON']/scale_size, self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='', ylabel=False, add_cbar=True)
+            ax2.set_title('BKGCON\n', fontsize=10) 
+            
+            make_image_axes.make_image_axes(ax3, self.data['CXFOV']/scale_size, self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title=cbar_title, ylabel=False, add_cbar=True)
+            ax3.set_title('CXFOV_CON\n', fontsize=10) 
+            
+            filename = f'SMILE_SXI_L3_SCIM15-SCI-CXFCON_{self.date_obs_str}-{self.date_end_str}_V01_{self.xdeg_sep}x{self.ydeg_sep}_key_ext.png'
+            
+        else:
+            raise ValueError("calc_cxfov must be 'normal' or 'constrained'.") 
+            
         #Add times to the plot. 
         fig.text(0.5, 0.95, f'{self.date_obs} - {self.date_end}', ha='center', fontsize=10)
         fig.text(0.5, 0.90, f'SMILE = ({self.pos[0]:.2f},{self.pos[1]:.2f},{self.pos[2]:.2f}), Aim = ({self.aim[0]:.2f},{self.aim[1]:.2f},{self.aim[2]:.2f}), Exposure = {self.expos}s', ha='center', fontsize=10)
         
 
         if save: 
-            filename = f'SMILE_SXI_L3_SCIM15-SCI-CXF_{self.date_obs_str}-{self.date_end_str}_V01_{self.xdeg_sep}x{self.ydeg_sep}_key_ext.png'
+            
             print ('Saving: ', self.fitspath+filename)
             fig.savefig(self.fitspath+filename)
 
     def plot_all_extensions(self, cmap='lundi', vmin=0, vmax=20, save=False):
-        '''This will plot the final most important extensions, CTSMAP, BKGMAP and CXFOV.'''
+        '''This will plot the final most important extensions, CTSMAP, BKGMAP and CXFOV.
+        This does not support the constrained versions of background and foreground. 
+        
+        '''
         
         #Get custom lundi colormap.
         if cmap == 'lundi':

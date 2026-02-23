@@ -667,10 +667,13 @@ class rebin_files():
         elif self.calc_cxfov.lower() == 'constrained':
             self.hdu11 = fits.ImageHDU(data=self.rebin_final['BKGCON'], name='BKGCON', header=header) 
             self.hdu11.header['COMMENT'] = 'Constrained Total Background Counts Map' 
+            self.hdu12 = fits.ImageHDU(data=self.rebin_final['CXFOV_CON'], name='CXFOV_CON', header=header)
+            self.hdu12.header['COMMENT'] = 'Constrained Foreground, devignetted count map (CXFOV_CON)' 
+            
             self.hdu.header['COMMENT'] = 'Constrained Foreground, devignetted count map(CXFOV_CON)' 
             
             #Make the HDU list.  
-            self.hdul = fits.HDUList([self.hdu, self.hdu1, self.hdu2, self.hdu3, self.hdu4, self.hdu5, self.hdu6, self.hdu7, self.hdu8, self.hdu9, self.hdu10, self.hdu11])
+            self.hdul = fits.HDUList([self.hdu, self.hdu1, self.hdu2, self.hdu3, self.hdu4, self.hdu5, self.hdu6, self.hdu7, self.hdu8, self.hdu9, self.hdu10, self.hdu11, self.hdu12])
             
         #Write the fits file. 
         self.hdul.writeto(self.outname, overwrite=True) 
