@@ -122,8 +122,8 @@ class read_rebinned_file():
         self.n_pixels = self.primary_header['NAXIS2'] 
         
         #Pixel widths. 
-        self.xdeg_sep = self.primary_header['CDELT1']
-        self.ydeg_sep = self.primary_header['CDELT2']
+        self.xres = self.primary_header['CDELT1']
+        self.yres = self.primary_header['CDELT2']
         
         #Lower bounds. 
         self.xdeg_min = self.primary_header['CRVAL1']
@@ -168,7 +168,7 @@ class read_rebinned_file():
         
         #Scale by pixel size if necessary. 
         if per_pixel:
-            px_size = self.xdeg_sep*self.ydeg_sep 
+            px_size = self.xres*self.yres 
             scale_size = px_size
             cbar_title = r'Counts/deg$^2$'
         else:
@@ -187,7 +187,7 @@ class read_rebinned_file():
             make_image_axes.make_image_axes(ax3, self.data['CXFOV']/scale_size, self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title=cbar_title, ylabel=False, add_cbar=True)
             ax3.set_title('CXFOV\n', fontsize=10) 
 
-            filename = f'SMILE_SXI_L3_SCIM15-SCI-CXF_{self.date_obs_str}-{self.date_end_str}_V01_{self.xdeg_sep}x{self.ydeg_sep}_key_ext.png'
+            filename = f'SMILE_SXI_L3_SCIM{self.xres*60}x{self.yres*60}-SCI-CXF_{self.date_obs_str}-{self.date_end_str}_V01_key_ext.png'
             
         elif self.calc_cxfov.lower() == 'constrained':
         
@@ -197,7 +197,7 @@ class read_rebinned_file():
             make_image_axes.make_image_axes(ax3, self.data['CXFOV']/scale_size, self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title=cbar_title, ylabel=False, add_cbar=True)
             ax3.set_title('CXFOV_CON\n', fontsize=10) 
             
-            filename = f'SMILE_SXI_L3_SCIM15-SCI-CXFCON_{self.date_obs_str}-{self.date_end_str}_V01_{self.xdeg_sep}x{self.ydeg_sep}_key_ext.png'
+            filename = f'SMILE_SXI_L3_SCIM{self.xres*60}x{self.yres*60}-SCI-CXFCON_{self.date_obs_str}-{self.date_end_str}_V01_key_ext.png'
             
         else:
             raise ValueError("calc_cxfov must be 'normal' or 'constrained'.") 
@@ -269,7 +269,7 @@ class read_rebinned_file():
         ax10.set_title('CXFOV\n', fontsize=10)    
         
         if save: 
-            filename = f'SMILE_SXI_L3_SCIM15-SCI-CXF_{self.date_obs_str}-{self.date_end_str}_V01_{self.xres}x{self.yres}_all_ext.png'
+            filename = f'SMILE_SXI_L3_SCIM{self.xres*60}x{self.yres*60}-SCI-CXF_{self.date_obs_str}-{self.date_end_str}_V01_all_ext.png'
             print ('Saving: ', self.fitspath+filename)
             fig.savefig(self.fitspath+filename)
             
