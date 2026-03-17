@@ -486,7 +486,7 @@ class rebin_files():
         
         ax1.plot(Xt, EXb, marker='x', color='c')
         ax1.plot(Xt, np.ones(Xt.size)*lda_b, color='k', linestyle='dashed')
-        ax1.set_xlabel('Total Counts') 
+        ax1.set_xlabel(r'Total Counts, X$_t$') 
         ax1.set_ylabel(r'E(X$_b$)') 
         ax1.xaxis.set_major_locator(MultipleLocator(1 if lda_b < 10 else 2)) 
         ax1.set_title(r'$\lambda_b$ = '+f'{lda_b}') 
@@ -567,9 +567,65 @@ class rebin_files():
             print (f'Saved: {fname}') 
         
         
+
+    def plot_bkg_fore_comparison(self, cmap_bkg='lundi', cmap='bwr', vmin=-30, vmax=30, save = False):   
+        '''This will plot the original and constrained background against each other to show the difference in the top row. It will plot the same with the foreground in the bottom row. '''
         
+        #Get custom lundi colormap.
+        if cmap_bkg == 'lundi':
+            cmap_bkg = read_cmap.txt2matplotlib()   
+  
+        plt.close("all")   
+        fig = plt.figure(figsize=(8,6))
+        fig.subplots_adjust(left=0.1, wspace=0.5, hspace=0.4)
         
+        ax1 = fig.add_subplot(231)
+        ax2 = fig.add_subplot(232)
+        ax3 = fig.add_subplot(233)      
+        ax4 = fig.add_subplot(234)
+        ax5 = fig.add_subplot(235)
+        ax6 = fig.add_subplot(236)      
         
+        #Add original background. 
+        make_image_axes.make_image_axes(ax1, self.rebin_final['BKGMAP'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap_bkg, vmin=0, vmax=self.rebin_final['BKGMAP'].max(), cbar_title='', ylabel=False, add_cbar=True)
+        ax1.set_title('BKGMAP\n', fontsize=10) 
+        
+        #Add constrained background. 
+        make_image_axes.make_image_axes(ax2, self.rebin_final['BKGCON'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap_bkg, vmin=0, vmax=self.rebin_final['BKGMAP'].max(), cbar_title='', ylabel=False, add_cbar=True)
+        ax2.set_title('BKGCON\n', fontsize=10) 
+        
+        #Add comparison. 
+        ax3.scatter(self.rebin_final['BKGMAP'], self.rebin_final['BKGCON'], marker='.', c='k', s=0.5)
+        ax3.plot([0, self.rebin_final['BKGMAP'].max()], [0,self.rebin_final['BKGMAP'].max()], c='grey', lw=0.5)
+        ax3.set(xlabel='BKGMAP', ylabel='BKGCON', xlim=(0, self.rebin_final['BKGMAP'].max()), ylim=(0, self.rebin_final['BKGMAP'].max()))
+        ax3.set_aspect('equal')
+        ax3.grid()
+        
+        #Add original background. 
+        make_image_axes.make_image_axes(ax4, self.rebin_final['CXFOV'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=vmin, vmax=vmax, cbar_title='', ylabel=False, add_cbar=True)
+        ax4.set_title('CXFOV\n', fontsize=10) 
+        
+        #Add constrained background. 
+        make_image_axes.make_image_axes(ax5, self.rebin_final['CXFOV_CON'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=vmin, vmax=vmax, cbar_title='', ylabel=False, add_cbar=True)
+        ax5.set_title('CXFOV_CON\n', fontsize=10) 
+        
+        #Add comparison. 
+        ax6.scatter(self.rebin_final['CXFOV'], self.rebin_final['CXFOV_CON'], marker='.', c='k', s=0.5)
+        ax6.plot([vmin, vmax], [vmin,vmax], c='grey', lw=0.5)
+        ax6.set(xlabel='CXFOV', ylabel='CXFOV_CON', xlim=(vmin, vmax), ylim=(vmin, vmax))
+        ax6.set_aspect('equal')
+        ax6.grid()
+        
+        #Add title to plot. 
+        fig.text(0.5, 0.95, f'{self.date_obs_str}-{self.date_end_str}_V01_{self.xres}x{self.yres}', ha='center')
+        
+        #Save plot. 
+        if save: 
+            fname = self.plot_path+f'constrained/bkg_fore_compare_{self.date_obs_str}-{self.date_end_str}_V01_{self.xres}x{self.yres}.png'
+            fig.savefig(fname)
+            print (f'Saved: {fname}') 
+            
+            
         
     def create_fits_file(self):
         '''This will create a FITS file with similar extensions to that produced by the SXI simulator. It should be readable by my read_fits_image.py script. It will be modified if calc_cxfov is 'constrained' instead of 'normal'. 
