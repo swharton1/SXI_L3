@@ -215,7 +215,7 @@ class rebin_files():
         fig.text(0.5, 0.9, 'Integrated CTSMAP', ha='center')
         
         if save: 
-            filename = f'SMILE_SXI_L3_SCIM15-SCI-CTS_{self.date_obs_str}-{self.date_end_str}_V01_{self.xres}x{self.yres}_integrated.png'
+            filename = f'SMILE_SXI_L3_SCIM{self.xres*60}x{self.yres*60}-SCI-CTS_{self.date_obs_str}-{self.date_end_str}_V01_integrated.png'
             print ('Saving: ', self.fitspath+filename)
             fig.savefig(self.fitspath+filename)
             
@@ -245,7 +245,7 @@ class rebin_files():
         ax3.set_title('CXFOV\n', fontsize=10) 
 
         if save: 
-            filename = f'SMILE_SXI_L3_SCIM15-SCI-CXF_{self.date_obs_str}-{self.date_end_str}_V01_{self.xres}x{self.yres}_key_ext.png'
+            filename = f'SMILE_SXI_L3_SCIM{self.xres*60}x{self.yres*60}-SCI-CXF_{self.date_obs_str}-{self.date_end_str}_V01_key_ext.png'
             print ('Saving: ', self.fitspath+filename)
             fig.savefig(self.fitspath+filename)
 
@@ -303,7 +303,7 @@ class rebin_files():
         ax10.set_title('CXFOV\n', fontsize=10)    
         
         if save: 
-            filename = f'SMILE_SXI_L3_SCIM15-SCI-CXF_{self.date_obs_str}-{self.date_end_str}_V01_{self.xres}x{self.yres}_all_ext.png'
+            filename = f'SMILE_SXI_L3_SCIM{self.xres*60}x{self.yres*60}-SCI-CXF_{self.date_obs_str}-{self.date_end_str}_V01_all_ext.png'
             print ('Saving: ', self.fitspath+filename)
             fig.savefig(self.fitspath+filename)
             
@@ -312,7 +312,7 @@ class rebin_files():
         '''This will create a FITS file with similar extensions to that produced by the SXI simulator. It should be readable by my read_fits_image.py script.''' 
         
         #Create a filename. 
-        filename = f'SMILE_SXI_L3_SCIM15-SCI-CXF_{self.date_obs_str}-{self.date_end_str}_V01_{self.xres}x{self.yres}.fits'
+        filename = f'SMILE_SXI_L3_SCIM{self.xres*60}x{self.yres*60}-SCI-CXF_{self.date_obs_str}-{self.date_end_str}_V01.fits'
         self.outname=self.fitspath+filename 
         
         #Create a new HDU object. 

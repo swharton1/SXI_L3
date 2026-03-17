@@ -14,7 +14,7 @@ from .SXI_Core import make_image_axes
 class read_rebinned_file():
     '''This reads in the new rebinned file.''' 
     
-    def __init__(self, folder='/home/s/sw682/Code/SXI_L3/SXI_L3/binned_examples/', filename='SMILE_SXI_L3_SCIM15-SCI-CXFCON_20260317T0240-20260317T0244_V01_1x1.fits', fitspath=None):
+    def __init__(self, folder='/home/s/sw682/Code/SXI_L3/SXI_L3/binned_examples/', filename='SMILE_SXI_L3_SCIM60x60-SCI-CXF_20260317T0240-20260317T0244_V01.fits', fitspath=None):
         
         '''This reads in a rebinned file.
         
