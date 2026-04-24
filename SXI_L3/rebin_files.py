@@ -90,6 +90,31 @@ class rebin_files():
         date_end_obj = dt.datetime.strptime(self.date_end, '%Y-%m-%dT%H:%M:%S.%f') 
         self.date_obs_str = dt.datetime.strftime(date_obs_obj, '%Y%m%dT%H%M') 
         self.date_end_str = dt.datetime.strftime(date_end_obj, '%Y%m%dT%H%M') 
+    
+    
+    def calc_quality_flag(self):
+        '''This uses a points system based on spacecraft position and count rate.''' 
+        
+        #Points from spacecraft position. 
+        #This calculates the perpendicular angle lambda, named after Richard's favourite Greek letter. 
+        
+        tan_lda = (self.aim[0] - self.pos[0])/np.sqrt(self.pos[1]**2 + self.pos[2]**2) 
+        lda = np.rad2deg(np.abs(np.arctan(tan_lda))) 
+        
+        if lda <= 25: ps = 0 
+        elif (lda > 25) & (lda <= 50): ps = 1 
+        else: ps = 2 
+        
+        #Now get a score based on image count rate. 
+        total_counts = self.rebin_final['CXFOV'].sum() 
+        cr = total_counts/self.expos
+        
+        if cr >= 150: pc = 0 
+        elif (cr < 150) & (cr >= 75): pc = 1
+        else: pc = 2 
+        
+        #Now get total quality flag. 
+        self.qf = ps + pc 
         
     def get_folders_and_filenames(self):
         '''This is the updated way of getting the folder names using the time.'''
@@ -343,6 +368,7 @@ class rebin_files():
         self.hdu.header['DATE-OBS'] = self.date_obs
         self.hdu.header['DATE-END'] = self.date_end 
         self.hdu.header['COMMENT'] = 'Made by rebin_files.py' 
+        self.hdu.header['QF'] = self.qf 
         
         #Add comment to primary file stating which files were used to create this one. 
         for f in self.folders:
