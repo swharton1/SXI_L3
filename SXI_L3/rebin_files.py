@@ -16,6 +16,8 @@ from . import rebin_funcs
 from .SXI_Core import make_image_axes
 from . import rebin_file_spatially 
 from .SXI_Core import read_cmap 
+from . import quality_flag as qf 
+
 
 class rebin_files(): 
     '''This will read in a set number of files and combine them in space and time.''' 
@@ -91,30 +93,10 @@ class rebin_files():
         self.date_obs_str = dt.datetime.strftime(date_obs_obj, '%Y%m%dT%H%M') 
         self.date_end_str = dt.datetime.strftime(date_end_obj, '%Y%m%dT%H%M') 
     
+        #Calculate quality flag. 
+        self.qf = qf.calc_quality_flag(self.aim, self.pos, self.expos, self.rebin_final['CXFOV']) 
     
-    def calc_quality_flag(self):
-        '''This uses a points system based on spacecraft position and count rate.''' 
-        
-        #Points from spacecraft position. 
-        #This calculates the perpendicular angle lambda, named after Richard's favourite Greek letter. 
-        
-        tan_lda = (self.aim[0] - self.pos[0])/np.sqrt(self.pos[1]**2 + self.pos[2]**2) 
-        lda = np.rad2deg(np.abs(np.arctan(tan_lda))) 
-        
-        if lda <= 25: ps = 0 
-        elif (lda > 25) & (lda <= 50): ps = 1 
-        else: ps = 2 
-        
-        #Now get a score based on image count rate. 
-        total_counts = self.rebin_final['CXFOV'].sum() 
-        cr = total_counts/self.expos
-        
-        if cr >= 150: pc = 0 
-        elif (cr < 150) & (cr >= 75): pc = 1
-        else: pc = 2 
-        
-        #Now get total quality flag. 
-        self.qf = ps + pc 
+
         
     def get_folders_and_filenames(self):
         '''This is the updated way of getting the folder names using the time.'''
