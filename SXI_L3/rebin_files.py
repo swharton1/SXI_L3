@@ -95,6 +95,9 @@ class rebin_files():
     
         #Calculate quality flag. 
         self.qf = qf.calc_quality_flag(self.aim, self.pos, self.expos, self.rebin_final['CXFOV']) 
+        
+        #Calculate binary quality flag based on SNR. 
+        self.qf2 = qf.calc_quality_flag_2(self.aim, self.pos, self.rebin_final['CXFOV'], self.rebin_final['BKGMAP']) 
     
 
         
@@ -351,6 +354,7 @@ class rebin_files():
         self.hdu.header['DATE-END'] = self.date_end 
         self.hdu.header['COMMENT'] = 'Made by rebin_files.py' 
         self.hdu.header['QF'] = self.qf 
+        self.hdu.header['QF2'] = self.qf2
         
         #Add comment to primary file stating which files were used to create this one. 
         for f in self.folders:
