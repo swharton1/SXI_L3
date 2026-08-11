@@ -8,7 +8,8 @@ import matplotlib.pyplot as plt
 from astropy.io import fits 
 import datetime as dt 
 
-from . import paths 
+#from . import paths 
+from . import read_config
 from . import read_bkg_file
 from . import read_tot_file
 from . import read_vcy_file  
@@ -38,11 +39,13 @@ class rebin_files():
         #Get lists of folders and filenames. 
         self.stime = stime
         self.etime = etime 
-        self.datapath = paths.get_data_path()
+        #self.datapath = paths.get_data_path()
+        self.datapath = read_config.read_config(path_type='data_path') 
         
         #Use default output location of no fitspath is given. 
         if fitspath is None: 
-            self.fitspath = paths.get_fits_path()
+            #self.fitspath = paths.get_fits_path()
+            self.fitspath = read_config.read_config(path_type='fits_path') 
         else: 
             self.fitspath = fitspath 
             

@@ -11,7 +11,8 @@ import datetime as dt
 from scipy.stats import poisson 
 from matplotlib.ticker import MultipleLocator 
 
-from . import paths 
+#from . import paths 
+from . import read_config 
 from . import read_bkg_file
 from . import read_tot_file
 from . import read_vcy_file  
@@ -40,12 +41,14 @@ class rebin_files():
         #Get lists of folders and filenames. 
         self.stime = stime
         self.etime = etime 
-        self.datapath = paths.get_data_path()
+        #self.datapath = paths.get_data_path()
+        self.datapath = read_config.read_config(path_type='data_path')
         self.calc_cxfov = calc_cxfov 
         
         #Use default output location of no fitspath is given. 
         if fitspath is None: 
-            self.fitspath = paths.get_fits_path()
+            #self.fitspath = paths.get_fits_path()
+            self.fitspath = read_config.read_config(path_type='fits_path') 
         else: 
             self.fitspath = fitspath 
             
@@ -82,7 +85,8 @@ class rebin_files():
             self.rebin_final['CXFOV'] = (self.rebin_final['CTSMAP'] - self.rebin_final['BKGMAP'])/self.rebin_final['VIGMAP'] 
         
             #Get extra path for plotting some graphs showing the constrained method. 
-            self.plot_path = paths.get_plot_path()
+            #self.plot_path = paths.get_plot_path()
+            self.plot_path = read_config.read_config(path_type='plot_path') 
         else:
             raise ValueError("Choose 'normal' or 'constrained' for calc_cxfov") 
         

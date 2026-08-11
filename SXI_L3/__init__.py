@@ -10,3 +10,4 @@ from . import read_rebinned_file
 from . import SXI_Core
 from . import rebin_files_exp_bkg
 from . import quality_flag 
+from . import read_config

@@ -6,7 +6,8 @@ from astropy.io import fits
 import matplotlib.pyplot as plt 
 import datetime as dt
 
-from . import paths 
+#from . import paths 
+from . import read_config 
 from .SXI_Core import read_cmap 
 from .SXI_Core import make_image_axes 
 
@@ -17,8 +18,10 @@ class read_vcy_file():
     
         #Get path to the data. 
         self.filename = filename 
-        self.datapath = paths.get_data_path()+folder 
-        self.fitspath = paths.get_fits_path()
+         #self.datapath = paths.get_data_path()+folder 
+        self.datapath = read_config.read_config(path_type='data_path')+folder
+        #self.fitspath = paths.get_fits_path()
+        self.fitspath = read_config.read_config(path_type='fits_path')
         self.fullname = os.path.join(self.datapath, filename) 
         
         #Check the file exists. 

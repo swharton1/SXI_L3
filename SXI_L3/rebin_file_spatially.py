@@ -6,7 +6,8 @@ import numpy as np
 import matplotlib.pyplot as plt 
 from astropy.io import fits 
 
-from . import paths 
+#from . import paths 
+from . import read_config 
 from . import read_bkg_file
 from . import read_tot_file
 from . import read_vcy_file  
@@ -21,8 +22,10 @@ class rebin_file():
     
         #Get path to the data. 
         self.folder = folder
-        self.datapath = paths.get_data_path()+folder 
-        self.fitspath = paths.get_fits_path()
+         #self.datapath = paths.get_data_path()+folder 
+        self.datapath = read_config.read_config(path_type='data_path')+folder
+        #self.fitspath = paths.get_fits_path()
+        self.fitspath = read_config.read_config(path_type='fits_path')
         self.bkg_fullname = os.path.join(self.datapath, bkg_file)
         self.tot_fullname = os.path.join(self.datapath, tot_file)
         self.vcy_fullname = os.path.join(self.datapath, vcy_file)
