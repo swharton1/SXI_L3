@@ -70,8 +70,8 @@ def calc_quality_flag_2(aim, pos, cxfov, bkg):
     SNR = S/(S**2 + B**2)**0.5
     
     #Assign SNR bits. 
-    bit3 = 4 if (SNR > 1) & (SNR <= 2) else 0 
-    bit4 = 8 if (SNR < 1) else 0 
+    bit3 = 4 if (SNR > 0.33) & (SNR <= 0.67) else 0 
+    bit4 = 8 if (SNR < 0.33) else 0 
     
     #Quality flag is the sum of all the bits. 
     qf = bit1 + bit2 + bit3 + bit4
@@ -159,13 +159,14 @@ def interpret_qf(qf, plot=True):
     
 
           
-def interpret_qf_list(times, qf_list, cmap='Greys'):
+def interpret_qf_list(times, qf_list, ax1=None, cmap='Greys'):
     '''This will take a list of quality flags and the times they were taken and decompose each one into its bits. It then produces a plot to show the variation in the bits of the quality flags. Returns the axes. 
     
     Parameters
     ----------
     times - list/array of datetime objects (or just numbers).
     qf_list - list/array of total quality flag numbers.
+    ax1 - If None, it will make one here. 
     
     Returns
     -------
@@ -181,7 +182,7 @@ def interpret_qf_list(times, qf_list, cmap='Greys'):
     
     for q, qf in enumerate(qf_list):
         bits[q] = decompose_qf2(qf) 
-    print (bits) 
+    
     
     #Make array of indices for bits. 
     x = [-0.5,0.5,1.5,2.5,3.5]
@@ -192,10 +193,12 @@ def interpret_qf_list(times, qf_list, cmap='Greys'):
     #Make 2D arrays for plotting. 
     X, TIMES = np.meshgrid(x, times_extra) 
     
-    #Now create a plot. 
-    fig = plt.figure(figsize=(8,4))
-    fig.subplots_adjust(left=0.2)
-    ax1 = fig.add_subplot(111)
+    #Now create a plot.
+    if ax1 is None: 
+        fig = plt.figure(figsize=(8,4))
+        fig.subplots_adjust(left=0.2)
+        ax1 = fig.add_subplot(111)
+        
     ax1.pcolormesh(TIMES, X, bits, cmap=cmap, vmin=-0.2, vmax=1)
     ax1.yaxis.set_major_locator(MultipleLocator(1)) 
     ax1.set_yticks([0,1,2,3]) 
