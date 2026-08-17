@@ -11,3 +11,4 @@ from . import SXI_Core
 from . import rebin_files_exp_bkg
 from . import quality_flag 
 from . import read_config
+from . import bayane_cusp 

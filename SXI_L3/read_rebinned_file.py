@@ -9,13 +9,14 @@ import datetime as dt
 
 #from . import paths 
 from . import read_config
+from . import bayane_cusp
 from .SXI_Core import read_cmap 
 from .SXI_Core import make_image_axes 
 
 class read_rebinned_file():
     '''This reads in the new rebinned file.''' 
     
-    def __init__(self, folder='/home/s/sw682/Code/SXI_L3/SXI_L3/binned_examples/', filename='SMILE_SXI_L3_SCIM60x60-SCI-CXF_20260317T0240-20260317T0244_V01.fits', fitspath=None):
+    def __init__(self, folder='/home/s/sw682/Code/SXI_L3/SXI_L3/binned_examples/', filename='SMILE_SXI_L3_SCIM60x60-SCI-CXF_20260317T0240-20260317T0244_V01.fits', fitspath=None, bayane=True):
         
         '''This reads in a rebinned file.
         
@@ -24,6 +25,7 @@ class read_rebinned_file():
         folder - absolute path to the file. 
         filename - filename. 
         fitspath - absolute path to output files. None - uses default. 
+        bayane - boolean to run Bayane's cusp ID routine. 
         
         '''
         
@@ -82,6 +84,10 @@ class read_rebinned_file():
         self.get_orbit_info() 
         self.get_camera_info() 
         
+        #Bayane's cusp routine. 
+        self.bayane = bayane 
+        if bayane: 
+            self.cusp = bayane_cusp.test2_is_cusp(self.data['CXFOV']) 
         
     #FUNCTIONS TO EXTRACT KEY HEADER INFO FROM THE FILE, INCLUDING DIPOLE ANGLE.
     ########################################################################
@@ -209,6 +215,8 @@ class read_rebinned_file():
         fig.text(0.5, 0.95, f'{self.date_obs} - {self.date_end}', ha='center', fontsize=10)
         fig.text(0.5, 0.90, f'SMILE = ({self.pos[0]:.2f},{self.pos[1]:.2f},{self.pos[2]:.2f}), Aim = ({self.aim[0]:.2f},{self.aim[1]:.2f},{self.aim[2]:.2f}), Exposure = {self.expos}s', ha='center', fontsize=10)
         
+        if self.bayane: 
+            fig.text(0.95, 0.05, f'Cusp = {self.cusp}', ha='right') 
 
         if save: 
             
@@ -271,6 +279,9 @@ class read_rebinned_file():
         make_image_axes.make_image_axes(ax10, self.data['CXFOV'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='Counts/pixel', ylabel=False, add_cbar=True)
         ax10.set_title('CXFOV\n', fontsize=10)    
         
+        if self.bayane: 
+            fig.text(0.98, 0.05, f'Cusp = {self.cusp}', ha='right') 
+            
         if save: 
             filename = f'SMILE_SXI_L3_SCIM{self.xres*60}x{self.yres*60}-SCI-CXF_{self.date_obs_str}-{self.date_end_str}_V01_all_ext.png'
             print ('Saving: ', self.fitspath+filename)
