@@ -12,6 +12,7 @@ from . import read_config
 from . import bayane_cusp
 from .SXI_Core import read_cmap 
 from .SXI_Core import make_image_axes 
+import SXI_Dynamic_Time_Integration_method as dti
 
 class read_rebinned_file():
     '''This reads in the new rebinned file.''' 
@@ -87,8 +88,9 @@ class read_rebinned_file():
         #Bayane's cusp routine. 
         self.bayane = bayane 
         if bayane: 
-            self.cusp = bayane_cusp.test2_is_cusp(self.data['CXFOV']) 
-        
+            #self.cusp = bayane_cusp.test2_is_cusp(self.data['CXFOV']) 
+            self.cusp = dti.test2_is_cusp(self.data['CXFOV'])
+            
     #FUNCTIONS TO EXTRACT KEY HEADER INFO FROM THE FILE, INCLUDING DIPOLE ANGLE.
     ########################################################################
            
@@ -155,7 +157,50 @@ class read_rebinned_file():
         
         #Exposure 
         self.expos = self.primary_header['EXPOS']   
+    
+    def plot_gac_extensions(self, cmap='lundi', vmin=0, vmax=20, save=False, close=False, per_pixel=False):
+        '''This will plot important extensions needed for the GAC paper, CTSMAP, BKGMAP, VIGMAP and CXFOV.'''
         
+        #Get custom lundi colormap.
+        if cmap == 'lundi':
+            cmap = read_cmap.txt2matplotlib()   
+  
+        if close: 
+            plt.ioff() 
+        else: 
+            plt.ion() 
+              
+        fig = plt.figure(figsize=(10,4))
+        fig.subplots_adjust(left=0.1, wspace=0.6)
+        
+        ax1 = fig.add_subplot(141)
+        ax2 = fig.add_subplot(142)
+        ax3 = fig.add_subplot(143)
+        ax4 = fig.add_subplot(144) 
+        
+        #Make the CTSMAP axis. 
+        make_image_axes.make_image_axes(ax1, self.data['CTSMAP'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='Counts/pixel', ylabel=True, add_cbar=True)
+        ax1.set_title('(a) CTSMAP\n', fontsize=10) 
+        
+        #Make the total background axis. 
+        make_image_axes.make_image_axes(ax2, self.data['BKGMAP'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=2, cbar_title='Counts/pixel', ylabel=False, add_cbar=True)
+        ax2.set_title('(b) BKGMAP\n', fontsize=10) 
+        
+        #Make the vignetting axis. 
+        make_image_axes.make_image_axes(ax3, self.data['VIGMAP'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=1, cbar_title='Vignetting', ylabel=False, add_cbar=True)
+        ax3.set_title('(c) VIGMAP\n', fontsize=10) 
+        
+        #Make the CXFOV axis.     
+        make_image_axes.make_image_axes(ax4, self.data['CXFOV'], self.xdeg_min, self.ydeg_min, self.n_pixels, self.m_pixels, cmap=cmap, vmin=0, vmax=vmax, cbar_title='Counts/pixel', ylabel=False, add_cbar=True)
+        ax4.set_title('(d) CXFOV\n', fontsize=10) 
+        
+        fig.text(0.5, 0.9, f'{self.date_obs} - {self.date_end}', ha='center', fontsize=10) 
+        
+        if save: 
+            filename = f'SMILE_SXI_L3_SCIM{self.xres*60}x{self.yres*60}-SCI-CXF_{self.date_obs_str}-{self.date_end_str}_V01_gac_ext.png'
+            print ('Saving: ', self.fitspath+filename)
+            fig.savefig(self.fitspath+filename)
+            
     def plot_key_extensions(self, cmap='lundi', vmin=0, vmax=20, save=False, close=False, per_pixel=False):
         '''This will plot the final most important extensions, CTSMAP, BKGMAP and CXFOV.'''
         

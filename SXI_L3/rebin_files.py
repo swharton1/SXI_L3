@@ -102,7 +102,8 @@ class rebin_files():
         #Calculate binary quality flag based on SNR. 
         self.qf2 = qf.calc_quality_flag_2(self.aim, self.pos, self.rebin_final['CXFOV'], self.rebin_final['BKGMAP']) 
     
-
+        #Calculate binary quality flag based on SNR and DTI tests. 
+        self.qf3 = qf.calc_quality_flag_3(self.aim, self.pos, self.rebin_final['CXFOV'], self.rebin_final['BKGMAP'])
         
     def get_folders_and_filenames(self):
         '''This is the updated way of getting the folder names using the time.'''
@@ -358,6 +359,7 @@ class rebin_files():
         self.hdu.header['COMMENT'] = 'Made by rebin_files.py' 
         self.hdu.header['QF'] = self.qf 
         self.hdu.header['QF2'] = self.qf2
+        self.hdu.header['QF3'] = self.qf3
         
         #Add comment to primary file stating which files were used to create this one. 
         for f in self.folders:
